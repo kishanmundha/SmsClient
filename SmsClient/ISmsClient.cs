@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SmsClient
 {
+    /// <summary>
+    /// SmsClient interface
+    /// </summary>
     public interface ISmsClient : IDisposable
     {
         /// <summary>
@@ -34,9 +37,24 @@ namespace SmsClient
 
     public enum AuthenticationState
     {
+        /// <summary>
+        /// Not checked yet
+        /// </summary>
         NotChecked,
+        
+        /// <summary>
+        /// User authenticated by sms service provider
+        /// </summary>
         Authenticated,
+        
+        /// <summary>
+        /// User not authenticated by sms service provider
+        /// </summary>
         NotAuthenticated,
+
+        /// <summary>
+        /// Logged out service
+        /// </summary>
         LogOut
     }
 }
