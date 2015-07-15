@@ -5,6 +5,10 @@ using System.Web;
 
 namespace SmsClient
 {
+    /// <summary>
+    /// HttpClient
+    /// <para>Handle http connection, data, request</para>
+    /// </summary>
     class HttpClient : IDisposable
     {
         private MyWebClient webClient;
@@ -13,6 +17,9 @@ namespace SmsClient
 
         private string _RedirectLocation = String.Empty;
 
+        /// <summary>
+        /// Http response is redirect to another location
+        /// </summary>
         public bool IsRedirect { get { return this._RedirectLocation.Length != 0; }
             private set {
                 if (value) throw new Exception("Required Location");
@@ -21,23 +28,38 @@ namespace SmsClient
             }
         }
 
+        /// <summary>
+        /// Redirection location in http response
+        /// </summary>
         public string RedirectLocation { get { return this._RedirectLocation; } private set { this._RedirectLocation = value; } }
 
+        /// <summary>
+        /// HttpClient
+        /// </summary>
         public HttpClient()
         {
             webClient = new MyWebClient();
         }
 
+        /// <summary>
+        /// Get data from url in string using GET method
+        /// </summary>
         public string GetString(string url)
         {
             return RequestString(url, HttpMethod.GET, new Dictionary<string, string>());
         }
 
+        /// <summary>
+        /// Post data on url and retrive response string using POST method
+        /// </summary>
         public string GetStringPost(string url, Dictionary<string, string> data)
         {
             return RequestString(url, HttpMethod.POST, data);
         }
 
+        /// <summary>
+        /// Request url to retrive string
+        /// </summary>
         public string RequestString(string url, HttpMethod method, Dictionary<string, string> data)
         {
             this.IsRedirect = false;
@@ -49,6 +71,7 @@ namespace SmsClient
                 paramList.Add(string.Format("{0}={1}", HttpUtility.UrlEncode(keydata.Key), HttpUtility.UrlEncode(keydata.Value)));
             }
 
+            // add cookies in request header
             AddCookieRequestHeader(url);
 
             string ResponseData;
@@ -67,11 +90,15 @@ namespace SmsClient
                     throw new Exception("Invalid method");
             }
 
+            // handle response header
             HandleHeader(url, webClient.ResponseHeaders);
 
             return ResponseData;
         }
 
+        /// <summary>
+        /// Handle response headers
+        /// </summary>
         private void HandleHeader(string url, WebHeaderCollection headers)
         {
             for (int i = 0; i < headers.Count; i++)
@@ -91,6 +118,9 @@ namespace SmsClient
             }
         }
 
+        /// <summary>
+        /// Handle response cookies
+        /// </summary>
         private void HandleResponseSetCookie(string url, string CookieContent)
         {
             string[] actions = CookieContent.Split(';');
@@ -135,6 +165,9 @@ namespace SmsClient
             this.Cookies.Add(cookie);
         }
 
+        /// <summary>
+        /// Add cookie in request header before request
+        /// </summary>
         private void AddCookieRequestHeader(string url)
         {
             Uri uri = new Uri(url);
@@ -159,19 +192,52 @@ namespace SmsClient
             webClient.Dispose();
         }
 
+        /// <summary>
+        /// Http methods
+        /// </summary>
         [Flags]
         public enum HttpMethod
         {
+            /// <summary>
+            /// GET Method
+            /// </summary>
             GET = 0,
+            
+            /// <summary>
+            /// POST Method
+            /// </summary>
             POST = 1
         }
 
+        /// <summary>
+        /// Cookie class
+        /// </summary>
         private class Cookie
         {
+            /// <summary>
+            /// Key of cookie
+            /// </summary>
             public string Key;
+
+            /// <summary>
+            /// Value of cookie
+            /// </summary>
             public string Value;
+
+            /// <summary>
+            /// Cookie path
+            /// </summary>
             public string Path;
+
+            /// <summary>
+            /// Host for cookie
+            /// </summary>
             public string Host;
+
+            /// <summary>
+            /// Cookie only for http connection
+            /// <para>Cookie request not send if HttpOnly true and connection is secure connection</para>
+            /// </summary>
             public bool HttpOnly = false;
 
             public override string ToString()
@@ -180,8 +246,15 @@ namespace SmsClient
             }
         }
 
+        /// <summary>
+        /// Customize WebClient to retrive date throw http connection
+        /// </summary>
         private class MyWebClient : WebClient
         {
+            /// <summary>
+            /// WebRequest method
+            /// <para>Disalbed auto redirection</para>
+            /// </summary>
             protected override WebRequest GetWebRequest(Uri address)
             {
                 var request = (HttpWebRequest)base.GetWebRequest(address);
